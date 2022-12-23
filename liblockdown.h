@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LIBLOCKDOWN_H
 #define LIBLOCKDOWN_H
 
+#include <_types/_uint64_t.h>
 #if __cplusplus
 extern "C" {
 #endif
@@ -41,7 +42,10 @@ extern "C" {
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
 //#include <Availability2.h>
-    
+#import "OS_dispatch_queue.h"
+#import "OS_dispatch_queue_serial.h"
+#import "OS_xpc_dictionary.h"
+#import "OS_xpc_object.h"
 #pragma mark -
 #pragma mark Error messages
 extern CFStringRef _Nonnull kLDErrorCheckinTimeout;
@@ -462,7 +466,7 @@ static const CFStringRef _Nonnull kLockdownSoftwareCUIDKey = CFSTR("SoftwareCUID
         kLockdownErrorCheckinTimeout
     } LockdownError;
         
-extern CFSocketNativeHandle lockdown_checkin(void);
+extern uint64_t lockdown_checkin(void);
         
 extern LockdownConnectionRef _Nonnull lockdown_connect(void);
 extern void lockdown_disconnect(LockdownConnectionRef _Nonnull connection);
@@ -472,15 +476,15 @@ extern CFPropertyListRef _Nullable lockdown_copy_value(LockdownConnectionRef _No
 extern LockdownError lockdown_remove_value(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable domain, CFStringRef _Nullable key);
 extern LockdownError lockdown_set_value(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable domain, CFStringRef _Nullable key, CFPropertyListRef _Nullable newValue);
 
-extern int lockdown_checkin_xpc(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable domain, CFTypeRef _Nullable arg2, CFTypeRef _Nullable arg3);
-extern char lockdown_connection_is_proxy(void);
-extern char lockdown_connection_is_usb(void);
-extern char lockdown_connection_is_wifi(void);
+extern LockdownError lockdown_checkin_xpc(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable domain, OS_dispatch_queue* queue, CFTypeRef block);
+extern uint64_t lockdown_connection_is_proxy(void);
+extern uint64_t lockdown_connection_is_usb(void);
+extern uint64_t lockdown_connection_is_wifi(void);
 extern CFDataRef _Nullable lockdown_copy_DPK(void);
 extern CFStringRef _Nullable lockdown_copy_activationState(void);
 extern CFStringRef _Nullable lockdown_copy_brickState(void);
 
-extern CFStringRef _Nullable lockdown_copy_checkin_info(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable key);
+extern LockdownError lockdown_copy_checkin_info(OS_xpc_dictionary* xpcdictionary, void* unknown);
 
 extern CFDataRef _Nullable lockdown_copy_deviceCertificate(void);
 extern SecIdentityRef _Nullable lockdown_copy_deviceIdentity(void);
@@ -492,21 +496,21 @@ extern CFStringRef _Nullable lockdown_copy_trustedHostAttached(void);
 extern CFTypeRef _Nullable lockdown_copy_wireless_connections_list(void);
 extern LockdownError lockdown_delete_pair_records(void);
 extern BOOL lockdown_enable_wireless_pairing(void);
-extern size_t lockdown_get_buffered_read_size(LockdownConnectionRef _Nonnull connection, CFTypeRef _Nullable arg1);
-extern int lockdown_get_securecontext(void);
+extern size_t lockdown_get_buffered_read_size(LockdownConnectionRef _Nonnull connection, CFTypeRef _Nullable unknown);
+extern uint64_t lockdown_get_securecontext(void);
 extern CFSocketRef _Nullable lockdown_get_socket(void);
 
-extern BOOL lockdown_is_host_trusted(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable domain, _Nullable CFTypeRef arg2);
+extern BOOL lockdown_is_host_trusted(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable domain, _Nullable CFTypeRef unknown);
 extern LockdownError lockdown_kill_wireless_connections(void);
-extern int lockdown_receive_message(LockdownConnectionRef _Nonnull connection);
-extern void* _Nullable lockdown_recv(LockdownConnectionRef _Nonnull  connection, CFStringRef _Nullable domain, uint64_t key);
+extern LockdownError lockdown_receive_message(LockdownConnectionRef _Nonnull connection);
+extern LockdownError lockdown_recv(LockdownConnectionRef connection, uint64_t unknown1, uint64_t unknown2);
 extern LockdownError lockdown_reset_pairing(void);
 extern LockdownError lockdown_reset_pairing_internal(LockdownConnectionRef _Nonnull connection);
-extern LockdownError lockdown_save_value(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable omain, CFStringRef _Nullable value, CFSocketRef  _Nullable * _Nullable socket); // value and socket might be in wrong order, need to test this command
-extern uint64_t lockdown_send(LockdownConnectionRef _Nonnull connection);
+extern LockdownError lockdown_save_value(LockdownConnectionRef _Nonnull connection, CFStringRef _Nullable domain, CFStringRef _Nullable value, CFTypeRef _Nullable unknown); // value and socket might be in wrong order, need to test this command
+extern LockdownError lockdown_send(LockdownConnectionRef _Nonnull connection);
 extern LockdownError lockdown_send_message(LockdownConnectionRef _Nonnull connection);
 extern LockdownError lockdown_set_fmipticket(LockdownConnectionRef _Nonnull connection);
-extern int secure_lockdown_checkin(LockdownConnectionRef _Nonnull connection, _Nullable CFStringRef domain, CFStringRef _Nullable key);
+extern LockdownError secure_lockdown_checkin(uint64_t unknown0, CFArrayRef checkinInfoDictionary, uint64_t unknown2);
 
 //lockdown_wifi_debug_enabled
 //lockdown_wifi_sync_enabled
